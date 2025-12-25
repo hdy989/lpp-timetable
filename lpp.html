@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班主任每周时间安排表 - 上蔡一中分校七六班</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4a6fa5;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .on-duty {
+            background-color: #e74c3c;
+        }
+        
+        .free-time {
+            background-color: #2ecc71;
+        }
+        
+        .break-time {
+            background-color: #ecf0f1;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .day-btn {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .day-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .day-btn.active {
+            background-color: #2c3e50;
+        }
+        
+        .day-btn.all {
+            background-color: #9b59b6;
+        }
+        
+        .day-btn.all.active {
+            background-color: #8e44ad;
+        }
+        
+        .schedule-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .day-schedule {
+            display: none;
+            padding: 20px;
+        }
+        
+        .day-schedule.active {
+            display: block;
+        }
+        
+        .day-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .time-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .time-table th {
+            background-color: #f8f9fa;
+            padding: 15px 10px;
+            text-align: left;
+            color: #2c3e50;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .time-table td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .time-slot {
+            font-weight: 600;
+            color: #34495e;
+            width: 180px;
+        }
+        
+        .subject {
+            font-weight: 500;
+        }
+        
+        .status {
+            width: 100px;
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .status-on-duty {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #c0392b;
+        }
+        
+        .status-free {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+        }
+        
+        .status-break {
+            background-color: rgba(236, 240, 241, 0.8);
+            color: #7f8c8d;
+        }
+        
+        .summary {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .summary h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 150px;
+        }
+        
+        .stat-on-duty {
+            background-color: rgba(231, 76, 60, 0.08);
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .stat-free {
+            background-color: rgba(46, 204, 113, 0.08);
+            border-left: 4px solid #2ecc71;
+        }
+        
+        .stat-count {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        
+        .note {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .note h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .note ul {
+            padding-left: 20px;
+        }
+        
+        .note li {
+            margin-bottom: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #95a5a6;
+            font-size: 14px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .time-table {
+                font-size: 14px;
+            }
+            
+            .time-table th, .time-table td {
+                padding: 10px 5px;
+            }
+            
+            .time-slot {
+                width: 130px;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .day-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>班主任每周时间安排表</h1>
+        <p>上蔡一中分校七六班 • 2025-2026学年度秋冬季</p>
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="color-box on-duty"></div>
+            <span>需要坐班</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box free-time"></div>
+            <span>空闲时间</span>
+        </div>
+        <div class="legend-item">
+            <div class="color-box break-time"></div>
+            <span>课间/休息</span>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="day-btn all active" data-day="all">全部</button>
+        <button class="day-btn" data-day="monday">星期一</button>
+        <button class="day-btn" data-day="tuesday">星期二</button>
+        <button class="day-btn" data-day="wednesday">星期三</button>
+        <button class="day-btn" data-day="thursday">星期四</button>
+        <button class="day-btn" data-day="friday">星期五</button>
+    </div>
+    
+    <div class="schedule-container">
+        <!-- 星期一 -->
+        <div class="day-schedule active" id="monday">
+            <h2 class="day-title">星期一</h2>
+            <table class="time-table">
+                <thead>
+                    <tr>
+                        <th>时间段</th>
+                        <th>时间</th>
+                        <th>科目/活动</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="time-slot">起床</td>
+                        <td>06:10 - 06:40</td>
+                        <td class="subject">-</td>
+                        <td class="status"><span class="status-badge status-break">休息</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">早自习</td>
+                        <td>06:40 - 07:20</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">预备</td>
+                        <td>08:00 - 08:10</td>
+                        <td class="subject">-</td>
+                        <td class="status"><span class="status-badge status-break">预备</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第一节</td>
+                        <td>08:10 - 08:55</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第二节</td>
+                        <td>09:05 - 09:50</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">课间操</td>
+                        <td>09:50 - 10:20</td>
+                        <td class="subject">-</td>
+                        <td class="status"><span class="status-badge status-break">课间</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第三节</td>
+                        <td>10:20 - 11:05</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第四节</td>
+                        <td>11:15 - 12:00</td>
+                        <td class="subject">地理</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">午间休息</td>
+                        <td>12:00 - 14:10</td>
+                        <td class="subject">写字、午休</td>
+                        <td class="status"><span class="status-badge status-break">休息</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第一节</td>
+                        <td>14:10 - 14:55</td>
+                        <td class="subject">阅读自习</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第二节</td>
+                        <td>15:05 - 15:50</td>
+                        <td class="subject">政治</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">眼保健操</td>
+                        <td>15:50 - 16:10</td>
+                        <td class="subject">-</td>
+                        <td class="status"><span class="status-badge status-break">课间</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第三节</td>
+                        <td>16:10 - 16:55</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">课外活动</td>
+                        <td>17:05 - 17:50</td>
+                        <td class="subject">体育</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第五节</td>
+                        <td>17:50 - 18:30</td>
+                        <td class="subject">班会</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第一节</td>
+                        <td>18:40 - 19:25</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第二节</td>
+                        <td>19:35 - 20:20</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 星期二 -->
+        <div class="day-schedule" id="tuesday">
+            <h2 class="day-title">星期二</h2>
+            <table class="time-table">
+                <thead>
+                    <tr>
+                        <th>时间段</th>
+                        <th>时间</th>
+                        <th>科目/活动</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="time-slot">早自习</td>
+                        <td>06:40 - 07:20</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第一节</td>
+                        <td>08:10 - 08:55</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第二节</td>
+                        <td>09:05 - 09:50</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第三节</td>
+                        <td>10:20 - 11:05</td>
+                        <td class="subject">生物</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第四节</td>
+                        <td>11:15 - 12:00</td>
+                        <td class="subject">劳技（组习）</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第一节</td>
+                        <td>14:10 - 14:55</td>
+                        <td class="subject">计算机</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第二节</td>
+                        <td>15:05 - 15:50</td>
+                        <td class="subject">历史</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第三节</td>
+                        <td>16:10 - 16:55</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">课外活动</td>
+                        <td>17:05 - 17:50</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第五节</td>
+                        <td>17:50 - 18:30</td>
+                        <td class="subject">自习法辅</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第一节</td>
+                        <td>18:40 - 19:25</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第二节</td>
+                        <td>19:35 - 20:20</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 星期三 -->
+        <div class="day-schedule" id="wednesday">
+            <h2 class="day-title">星期三</h2>
+            <table class="time-table">
+                <thead>
+                    <tr>
+                        <th>时间段</th>
+                        <th>时间</th>
+                        <th>科目/活动</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="time-slot">早自习</td>
+                        <td>06:40 - 07:20</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第一节</td>
+                        <td>08:10 - 08:55</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第二节</td>
+                        <td>09:05 - 09:50</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第三节</td>
+                        <td>10:20 - 11:05</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第四节</td>
+                        <td>11:15 - 12:00</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第一节</td>
+                        <td>14:10 - 14:55</td>
+                        <td class="subject">音乐</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第二节</td>
+                        <td>15:05 - 15:50</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第三节</td>
+                        <td>16:10 - 16:55</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">课外活动</td>
+                        <td>17:05 - 17:50</td>
+                        <td class="subject">生物</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第五节</td>
+                        <td>17:50 - 18:30</td>
+                        <td class="subject">自习秘辅</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第一节</td>
+                        <td>18:40 - 19:25</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第二节</td>
+                        <td>19:35 - 20:20</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 星期四 -->
+        <div class="day-schedule" id="thursday">
+            <h2 class="day-title">星期四</h2>
+            <table class="time-table">
+                <thead>
+                    <tr>
+                        <th>时间段</th>
+                        <th>时间</th>
+                        <th>科目/活动</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="time-slot">早自习</td>
+                        <td>06:40 - 07:20</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第一节</td>
+                        <td>08:10 - 08:55</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第二节</td>
+                        <td>09:05 - 09:50</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第三节</td>
+                        <td>10:20 - 11:05</td>
+                        <td class="subject">体育</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第四节</td>
+                        <td>11:15 - 12:00</td>
+                        <td class="subject">历史</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第一节</td>
+                        <td>14:10 - 14:55</td>
+                        <td class="subject">美术</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第二节</td>
+                        <td>15:05 - 15:50</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第三节</td>
+                        <td>16:10 - 16:55</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">课外活动</td>
+                        <td>17:05 - 17:50</td>
+                        <td class="subject">阅读心理学（组习）</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第五节</td>
+                        <td>17:50 - 18:30</td>
+                        <td class="subject">自习编辑</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第一节</td>
+                        <td>18:40 - 19:25</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第二节</td>
+                        <td>19:35 - 20:20</td>
+                        <td class="subject">班主任</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 星期五 -->
+        <div class="day-schedule" id="friday">
+            <h2 class="day-title">星期五</h2>
+            <table class="time-table">
+                <thead>
+                    <tr>
+                        <th>时间段</th>
+                        <th>时间</th>
+                        <th>科目/活动</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="time-slot">早自习</td>
+                        <td>06:40 - 07:20</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第一节</td>
+                        <td>08:10 - 08:55</td>
+                        <td class="subject">英语</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第二节</td>
+                        <td>09:05 - 09:50</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第三节</td>
+                        <td>10:20 - 11:05</td>
+                        <td class="subject">政治</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第四节</td>
+                        <td>11:15 - 12:00</td>
+                        <td class="subject">地理</td>
+                        <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第一节</td>
+                        <td>14:10 - 14:55</td>
+                        <td class="subject">语文</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第二节</td>
+                        <td>15:05 - 15:50</td>
+                        <td class="subject">数学</td>
+                         <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">下午第三节</td>
+                        <td>16:10 - 16:55</td>
+                        <td class="subject">空闲</td>
+                       <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">课外活动</td>
+                        <td>17:05 - 17:50</td>
+                        <td class="subject">空闲</td>
+                         <td class="status"><span class="status-badge status-free">空闲</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">第五节</td>
+                        <td>17:50 - 18:30</td>
+                        <td class="subject">自习</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第一节</td>
+                        <td>18:40 - 19:25</td>
+                        <td class="subject">数学</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                    <tr>
+                        <td class="time-slot">晚自习第二节</td>
+                        <td>19:35 - 20:20</td>
+                        <td class="subject">班主任</td>
+                        <td class="status"><span class="status-badge status-on-duty">坐班</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="summary">
+        <h3>本周时间统计</h3>
+        <div class="stats">
+            <div class="stat-item stat-on-duty">
+                <div class="stat-count">52</div>
+                <div class="stat-label">坐班时间段</div>
+            </div>
+            <div class="stat-item stat-free">
+                <div class="stat-count">16</div>
+                <div class="stat-label">空闲时间段</div>
+            </div>
+        </div>
+        
+        <div class="note">
+            <h4>说明：</h4>
+            <ul>
+                <li><strong>坐班时间</strong>：语文、数学、英语课，所有自习课，班会，早读，晚自习（班主任负责时段）</li>
+                <li><strong>空闲时间</strong>：地理、历史、生物、政治、体育、音乐、美术、计算机、劳技、心理等课程</li>
+                <li>课间操、眼保健操、午休、课外活动等时间段未计入统计（因不确定是否需要监督）</li>
+                <li>每周共有 <strong>16个空闲时间段</strong>，分布在各个工作日</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>上蔡一中分校七六班 • 班主任时间安排表 • 生成于 2025年11月</p>
+        <p>数据基于2025-2026学年度秋冬季作息时间表和课程表</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dayButtons = document.querySelectorAll('.day-btn');
+            const daySchedules = document.querySelectorAll('.day-schedule');
+            
+            // 初始显示全部
+            showAllDays();
+            
+            // 为每个按钮添加点击事件
+            dayButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 更新按钮状态
+                    dayButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const day = this.getAttribute('data-day');
+                    
+                    if (day === 'all') {
+                        showAllDays();
+                    } else {
+                        showSingleDay(day);
+                    }
+                });
+            });
+            
+            function showAllDays() {
+                daySchedules.forEach(schedule => {
+                    schedule.classList.add('active');
+                });
+            }
+            
+            function showSingleDay(day) {
+                daySchedules.forEach(schedule => {
+                    schedule.classList.remove('active');
+                });
+                
+                const targetSchedule = document.getElementById(day);
+                if (targetSchedule) {
+                    targetSchedule.classList.add('active');
+                }
+            }
+            
+            // 初始化统计数字（实际统计）
+            function calculateStats() {
+                let onDutyCount = 0;
+                let freeCount = 0;
+                
+                // 统计所有表格中的状态
+                const statusBadges = document.querySelectorAll('.status-badge');
+                
+                statusBadges.forEach(badge => {
+                    if (badge.classList.contains('status-on-duty')) {
+                        onDutyCount++;
+                    } else if (badge.classList.contains('status-free')) {
+                        freeCount++;
+                    }
+                });
+                
+                // 更新统计显示
+                document.querySelector('.stat-on-duty .stat-count').textContent = onDutyCount;
+                document.querySelector('.stat-free .stat-count').textContent = freeCount;
+            }
+            
+            calculateStats();
+        });
+    </script>
+</body>
+</html>
